@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhqc.cloud.sharding.dao.OrderDao">
+  <resultMap id="BaseResultMapExt" type="com.zhqc.cloud.sharding.model.po.OrderPOExt">
+    <id column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+	<result column="order_item_id" jdbcType="BIGINT" property="orderItemId" />
+	<result column="item_name" jdbcType="VARCHAR" property="orderItemName" />
+  </resultMap>
+  <select id="selectByUserId" parameterType="com.zhqc.cloud.sharding.model.query.OrderQuery" resultMap="BaseResultMapExt">
+    SELECT
+		o.order_id,
+		o.user_id,
+		o.order_no,
+		ot.order_item_id,
+		ot.item_name
+	FROM
+		t_order AS o
+	LEFT JOIN t_order_item AS ot ON ot.user_id = o.user_id
+	where 1=1 and !ISNULL(ot.order_item_id) limit 1, 10
+  </select>
+
+	<select id="selectByOrderId" parameterType="com.zhqc.cloud.sharding.model.query.OrderQuery" resultMap="BaseResultMapExt">
+    SELECT
+		o.order_id,
+		o.user_id,
+		o.order_no,
+		ot.order_item_id,
+		ot.item_name
+	FROM
+		t_order AS o
+	LEFT JOIN t_order_item AS ot ON ot.order_id = o.order_id
+	where 1=1 and o.order_id = #{orderId}
+  </select>
+</mapper>

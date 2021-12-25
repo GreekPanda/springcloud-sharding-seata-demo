@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhqc.cloud.sharding.dao.OrderItemDao">
+  <resultMap id="BaseResultMap" type="com.zhqc.cloud.sharding.model.po.OrderItemPO">
+    <id column="order_item_id" jdbcType="BIGINT" property="orderItemId" />
+    <result column="order_id" jdbcType="BIGINT" property="orderId" />
+    <result column="item_name" jdbcType="VARCHAR" property="itemName" />
+    <result column="user_id" jdbcType="BIGINT" property="userId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    order_item_id, order_id, item_name, user_id
+  </sql>
+  <select id="selectByExample" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPOExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from t_order_item
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.math.BigInteger" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_order_item
+    where order_item_id = #{orderItemId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.math.BigInteger">
+    delete from t_order_item
+    where order_item_id = #{orderItemId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPOExample">
+    delete from t_order_item
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPO">
+    insert into t_order_item (order_item_id, order_id, item_name,
+      user_id)
+    values (#{orderItemId,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{itemName,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPO">
+    insert into t_order_item
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="orderItemId != null">
+        order_item_id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="itemName != null">
+        item_name,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="orderItemId != null">
+        #{orderItemId,jdbcType=BIGINT},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="itemName != null">
+        #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPOExample" resultType="java.lang.Long">
+    select count(*) from t_order_item
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update t_order_item
+    <set>
+      <if test="record.orderItemId != null">
+        order_item_id = #{record.orderItemId,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderId != null">
+        order_id = #{record.orderId,jdbcType=BIGINT},
+      </if>
+      <if test="record.itemName != null">
+        item_name = #{record.itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update t_order_item
+    set order_item_id = #{record.orderItemId,jdbcType=BIGINT},
+      order_id = #{record.orderId,jdbcType=BIGINT},
+      item_name = #{record.itemName,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPO">
+    update t_order_item
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="itemName != null">
+        item_name = #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where order_item_id = #{orderItemId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zhqc.cloud.sharding.model.po.OrderItemPO">
+    update t_order_item
+    set order_id = #{orderId,jdbcType=BIGINT},
+      item_name = #{itemName,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=BIGINT}
+    where order_item_id = #{orderItemId,jdbcType=BIGINT}
+  </update>
+  <select id="selectByQuery" parameterType="com.zhqc.cloud.sharding.model.query.OrderItemQuery" resultMap="BaseResultMap">
+    SELECT 	
+		<include refid="Base_Column_List" /> 	
+		FROM T_ORDER_ITEM_0	
+		WHERE 1=1 	
+			<if test="orderItemId != null ">	
+			 AND ORDER_ITEM_ID = #{orderItemId}	
+			</if>	
+				
+			<if test="orderId != null ">	
+			 AND ORDER_ID = #{orderId}	
+			</if>	
+				
+			<if test="itemName != null ">	
+			 AND ITEM_NAME = #{itemName}	
+			</if>	
+				
+			<if test="userId != null ">	
+			 AND USER_ID = #{userId}	
+			</if>	
+			
+  </select>
+</mapper>

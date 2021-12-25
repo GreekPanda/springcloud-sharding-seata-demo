@@ -1,0 +1,85 @@
+spring:
+  shardingsphere:
+    datasource:
+      names: write-ds-0,write-ds-1,read-ds-0,read-ds-1
+      write-ds-0:
+        jdbc-url: jdbc:mysql://172.17.30.208:3306/write_ds_0?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: Zhqc_123!
+        max-active: 16
+      read-ds-0:
+        jdbc-url: jdbc:mysql://172.17.30.208:3306/read_ds_0?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: Zhqc_123!
+        max-active: 16     
+      write-ds-1:
+        jdbc-url: jdbc:mysql://172.17.30.208:3306/write_ds_1?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: Zhqc_123!
+        max-active: 16
+      write-ds-1-read-0:
+        jdbc-url: jdbc:mysql://172.17.30.208:3306/read_ds_1?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: Zhqc_123!
+        max-active: 16    
+    rules:
+      sharding:
+        default-database-strategy:
+          standard:
+            sharding-column: user_id
+            sharding-algorithm-name: database-inline
+        binding-tables[0]: t_order,t_order_item
+        broadcast-tables: t_address
+        tables:
+          t_order:
+            actual-data-nodes: ds-$->{0..1}.t_order_$->{0..1}
+            table-strategy:
+              standard:
+                sharding-column: order_id
+                sharding-algorithm-name: t-order-inline
+            key-generate-strategy:
+              column: order_id
+              key-generator-name: snowflake
+          t_order_item:
+            actual-data-nodes: ds-$->{0..1}.t_order_item_$->{0..1}
+            table-strategy:
+              standard:
+                sharding-column: order_id
+                sharding-algorithm-name: t-order-item-inline
+            key-generate-strategy:
+              column: order_item_id
+              key-generator-name: snowflake
+        key-generators:
+          snowflake:
+            type: SNOWFLAKE
+            props:
+              worker-id: 123
+        sharding-algorithms:
+          database-inline:
+            type: INLINE
+            props:
+              algorithm-expression: ds-$->{user_id % 2}
+          t-order-inline:
+            type: INLINE
+            props:
+              algorithm-expression: t_order_$->{order_id % 2}
+          t-order-item-inline:
+            type: INLINE
+            props:
+              algorithm-expression: t_order_item_$->{order_id % 2}
+      readwrite-splitting:
+        data-sources:
+          ds-0:
+            write-data-source-name: write-ds-0
+            read-data-source-names: read-ds-0
+          ds-1:
+            write-data-source-name: write-ds-1
+            read-data-source-names: read-ds-1

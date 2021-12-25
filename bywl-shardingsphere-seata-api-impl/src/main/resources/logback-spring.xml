@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- 级别从高到低 OFF 、 FATAL 、 ERROR 、 WARN 、 INFO 、 DEBUG 、 TRACE 、 ALL -->
+<!-- 日志输出规则 根据当前ROOT 级别，日志输出时，级别高于root默认的级别时 会输出 -->
+<!-- 以下 每个配置的 filter 是过滤掉输出文件里面，会出现高级别文件，依然出现低级别的日志信息，通过filter 过滤只记录本级别的日志 -->
+<!-- scan 当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。 -->
+<!-- scanPeriod 设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。 -->
+<!-- debug 当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。 -->
+
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <contextName>springboot-security</contextName>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>​
+    <springProperty scope="context" name="springAppName" source="spring.application.name"/>
+    <springProperty scope="context" name="log.home_dir" source="logging.path"/>
+    <!-- 日志输出格式 -->
+    <property name="CONSOLE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS}[%X{X-B3-TraceId:-},%X{X-B3-SpanId:-}] [%thread] %-5level %logger{50} - %msg%n"/>
+    <!-- 定义日志文件 输出位置 -->
+    <!--<springProfile name="dev">-->
+        <!--<property name="log.home_dir" value="${logging.path}"/>-->
+    <!--</springProfile>-->
+    <!--<springProfile name="test">-->
+        <!--<property name="log.home_dir" value="${logging.path}"/>-->
+    <!--</springProfile>-->
+    <!--<springProfile name="prod">-->
+        <!--<property name="log.home_dir" value="${logging.path}"/>-->
+    <!--</springProfile>-->
+    <!-- 日志最大的历史 30天 -->
+    <property name="log.maxHistory" value="30"/>
+    <!-- 打印debug级别日志及以上级别日志 -->
+    <property name="log.level" value="info"/>
+
+    <!-- ConsoleAppender 控制台输出日志 start -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <!--<charset>utf8</charset>-->
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- ConsoleAppender 控制台输出日志 end -->
+
+    <!-- errorAppender 控制台输出日志 start -->
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 过滤器，只记录WARN级别的日志 -->
+        <!-- 果日志级别等于配置级别，过滤器会根据onMath 和 onMismatch接收或拒绝日志。 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <!-- 设置过滤级别 -->
+            <level>ERROR</level>
+            <!-- 用于配置符合过滤条件的操作 -->
+            <onMatch>ACCEPT</onMatch>
+            <!-- 用于配置不符合过滤条件的操作 -->
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <!-- 最常用的滚动策略，它根据时间来制定滚动策略.既负责滚动也负责触发滚动 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志输出位置 可以是相对和绝对路径 -->
+            <fileNamePattern>
+                ${log.home_dir}/${springAppName}/error/%d{yyyy-MM-dd}/errorLog-%i.log
+            </fileNamePattern>
+            <!-- 可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件假设设置每个月滚动，且<maxHistory>是6， 则只保存最近6个月的文件，删除之前的旧文件。注意，删除旧文件是，那些为了归档而创建的目录也会被删除 -->
+            <maxHistory>${log.maxHistory}</maxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 单个log文件超过该大小就会重新建一个log文件 -->
+                <MaxFileSize>2MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- errorAppender 控制台输出日志 end -->
+
+    <!-- warnAppender 控制台输出日志 start -->
+    <appender name="warn" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${log.home_dir}/${springAppName}/warn/%d{yyyy-MM-dd}/warnLog-%i.log
+            </fileNamePattern>
+            <maxHistory>${log.maxHistory}</maxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>2MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- warnAppender 控制台输出日志 end -->
+
+    <!-- infoAppender 控制台输出日志 start -->
+    <appender name="info" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home_dir}/${springAppName}/info/%d{yyyy-MM-dd}/infoLog-%i.log</fileNamePattern>
+            <maxHistory>${log.maxHistory}</maxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>2MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- infoAppender 控制台输出日志 end -->
+
+    <!-- debugAppender 控制台输出日志 start -->
+    <appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.home_dir}/${springAppName}/debug/%d{yyyy-MM-dd}/debugLog-%i.log</fileNamePattern>
+            <maxHistory>${log.maxHistory}</maxHistory>
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>2MB</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+                <charset>utf8</charset>
+            </pattern>
+        </encoder>
+    </appender>
+    <!-- debugAppender 控制台输出日志 end -->
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss SSS} [%thread] %-5level %logger{36} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <!--日志发送到logstash=>elasticSearch=>kibana start-->
+    <!--<appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
+        <!--<destination>localhost:9601</destination>-->
+        <!--<queueSize>1048576</queueSize>-->
+        <!--<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" />-->
+    <!--</appender>-->
+
+    <!--<logger name="kibanaLog" level="DEBUG" additivity="false">-->
+        <!--<appender-ref ref="LOGSTASH"/>-->
+    <!--</logger>-->
+    ​<!--日志发送到logstash=>elasticSearch=>kibana end -->
+    ​
+    <root>
+        <level value="${log.level}"/>
+        <!-- 控制台输出 -->
+        <appender-ref ref="console"/>
+        <!-- 文件输出 -->
+        <appender-ref ref="error"/>
+        <appender-ref ref="warn"/>
+        <appender-ref ref="info"/>
+        <appender-ref ref="debug"/>
+    </root>
+
+    <!-- 文件不输出 -->
+    <Logger name="org.springframework" level="ERROR"></Logger>
+    <Logger name="org.hibernate" level="ERROR"></Logger>
+    <Logger name="org.apache" level="ERROR"></Logger>
+    <Logger name="com.netflix" level="ERROR"></Logger>
+    <Logger name="ch.qos.logback" level="ERROR"></Logger>
+    <Logger name="com.alibaba.cloud.nacos" level="INFO"></Logger>
+</configuration>
